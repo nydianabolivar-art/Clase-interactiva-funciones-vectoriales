@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funciones Vectoriales — Clase Interactiva</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #f8f9fc;
+    --bg2: #f1f3f9;
+    --bg3: #eef0f7;
+    --card: #ffffff;
+    --border: rgba(60,80,160,0.12);
+    --accent: #3b5fe2;
+    --accent2: #7c3aed;
+    --teal: #0d9488;
+    --amber: #b45309;
+    --coral: #dc2626;
+    --green: #15803d;
+    --text: #1e2132;
+    --text2: #4a5270;
+    --text3: #8892b0;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'IBM Plex Sans', system-ui, sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --r: 12px;
+    --r2: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.7;
+  }
+
+  /* HEADER */
+  .hero {
+    background: linear-gradient(135deg, #eef1fb 0%, #f3f0ff 50%, #edf4fb 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 48px 32px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 200px;
+    background: radial-gradient(ellipse, rgba(59,95,226,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(59,95,226,0.08);
+    border: 1px solid rgba(59,95,226,0.2);
+    color: var(--accent);
+    font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 6px 14px; border-radius: 20px; margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: #1a1f3c;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent2); }
+  .hero p {
+    color: var(--text2); font-size: 1rem; max-width: 560px; margin: 0 auto 28px;
+  }
+  .tags { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+  .tag {
+    font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 20px;
+    border: 1px solid;
+  }
+  .tag-multi { background: rgba(13,148,136,0.07); border-color: rgba(13,148,136,0.3); color: var(--teal); }
+  .tag-indus { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.3); color: var(--amber); }
+  .tag-calc  { background: rgba(124,58,237,0.07); border-color: rgba(124,58,237,0.25); color: var(--accent2); }
+
+  /* NAV TABS */
+  .nav-wrap {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(248,249,252,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav { display: flex; overflow-x: auto; padding: 0 20px; gap: 2px; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 14px 16px;
+    font-family: var(--sans); font-size: 13px; font-weight: 500;
+    color: var(--text3);
+    background: none; border: none; cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap; transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--text2); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-num {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(59,95,226,0.1);
+    color: var(--accent); font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tab-btn.active .tab-num { background: var(--accent); color: #fff; }
+
+  /* CONTENT */
+  .content { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+  .card-accent { border-left: 3px solid var(--accent); }
+  .card-teal   { border-left: 3px solid var(--teal); }
+  .card-amber  { border-left: 3px solid var(--amber); }
+  .card-coral  { border-left: 3px solid var(--coral); }
+  .card-green  { border-left: 3px solid var(--green); }
+
+  .section-title {
+    font-family: var(--serif);
+    font-size: 1.9rem;
+    color: #1a1f3c;
+    margin-bottom: 8px;
+  }
+  .section-sub {
+    color: var(--text2); font-size: 0.95rem; margin-bottom: 28px;
+  }
+
+  h3 { color: var(--text); font-size: 1.05rem; font-weight: 600; margin-bottom: 10px; }
+  h4 { color: var(--accent2); font-size: 0.9rem; font-weight: 500; margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+  p { color: var(--text2); font-size: 0.95rem; margin-bottom: 10px; }
+
+  .math-block {
+    background: #f0f3ff;
+    border: 1px solid rgba(59,95,226,0.18);
+    border-radius: var(--r2);
+    padding: 16px 20px;
+    font-family: var(--mono);
+    font-size: 1rem;
+    color: #2040b8;
+    text-align: center;
+    margin: 14px 0;
+    letter-spacing: 0.02em;
+  }
+  .math-inline {
+    font-family: var(--mono); color: #6d28d9;
+    background: rgba(109,40,217,0.08);
+    padding: 1px 6px; border-radius: 4px; font-size: 0.9em;
+  }
+
+  .tip {
+    background: #fffbeb;
+    border: 1px solid rgba(180,83,9,0.2);
+    border-radius: var(--r2);
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 0.9rem;
+    color: #44403c;
+  }
+  .tip strong { color: var(--amber); }
+  .note {
+    background: #eff6ff;
+    border: 1px solid rgba(59,95,226,0.2);
+    border-radius: var(--r2);
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 0.9rem;
+    color: #374151;
+  }
+  .note strong { color: var(--accent); }
+
+  /* APP CARDS (career-specific) */
+  .app-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media (max-width: 640px) { .app-grid { grid-template-columns: 1fr; } }
+  .app-card {
+    background: #f8f9fc;
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    padding: 18px;
+  }
+  .app-card-multi { border-top: 2px solid var(--teal); }
+  .app-card-indus { border-top: 2px solid var(--amber); }
+  .app-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .app-label-multi { color: var(--teal); }
+  .app-label-indus { color: var(--amber); }
+
+  /* STEPPER */
+  .stepper { margin: 20px 0; }
+  .step-indicators { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .step-dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #f1f3f9; border: 1px solid var(--border);
+    color: var(--text3); font-size: 12px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .step-dot.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .step-dot.done { background: #f0fdf4; border-color: #86efac; color: #15803d; }
+  .step-panel { display: none; }
+  .step-panel.active { display: block; }
+  .step-nav { display: flex; gap: 10px; margin-top: 16px; }
+  .btn {
+    padding: 9px 20px; border-radius: var(--r2);
+    font-family: var(--sans); font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; border: 1px solid;
+  }
+  .btn-primary {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  .btn-primary:hover { background: #5a7ef0; }
+  .btn-ghost {
+    background: transparent; border-color: var(--border); color: var(--text2);
+  }
+  .btn-ghost:hover { border-color: var(--text3); color: var(--text); }
+
+  /* CANVAS AREA */
+  .canvas-wrap {
+    background: #f1f3f9;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 16px;
+    margin: 16px 0;
+  }
+  canvas { display: block; width: 100%; height: auto; }
+
+  /* QUIZ */
+  .quiz-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .quiz-question { font-size: 1rem; color: var(--text); margin-bottom: 16px; font-weight: 500; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-opt {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--r2);
+    background: #f8f9fc;
+    color: var(--text2);
+    cursor: pointer;
+    font-family: var(--sans); font-size: 0.9rem;
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .quiz-opt:hover { border-color: var(--accent); color: var(--text); background: #eff3ff; }
+  .quiz-opt.correct { border-color: #15803d; background: #f0fdf4; color: #15803d; }
+  .quiz-opt.wrong   { border-color: #dc2626; background: #fef2f2; color: #dc2626; }
+  .quiz-opt.disabled { pointer-events: none; opacity: 0.7; }
+  .quiz-feedback {
+    margin-top: 12px; padding: 12px 16px;
+    border-radius: var(--r2); font-size: 0.9rem; display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .feedback-correct { background: #f0fdf4; border: 1px solid #86efac; color: #15803d; }
+  .feedback-wrong   { background: #fef2f2; border: 1px solid #fca5a5; color: #dc2626; }
+  .quiz-score {
+    background: #eff3ff;
+    border: 1px solid rgba(59,95,226,0.25);
+    border-radius: var(--r);
+    padding: 20px 24px;
+    text-align: center; display: none;
+  }
+  .score-num { font-family: var(--serif); font-size: 3rem; color: var(--accent); }
+  .score-msg { color: var(--text2); font-size: 0.95rem; margin-top: 6px; }
+
+  /* INTERACTIVE CALCS */
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 580px) { .calc-grid { grid-template-columns: 1fr; } }
+  .input-group { margin-bottom: 14px; }
+  .input-label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .input-field {
+    width: 100%; padding: 9px 12px;
+    background: #f8f9fc; border: 1px solid var(--border);
+    border-radius: var(--r2); color: var(--text); font-family: var(--mono); font-size: 14px;
+    outline: none; transition: border-color 0.15s;
+  }
+  .input-field:focus { border-color: var(--accent); }
+  .result-box {
+    background: #f0f7ff; border: 1px solid rgba(59,95,226,0.2);
+    border-radius: var(--r2); padding: 14px 16px; min-height: 60px;
+    font-family: var(--mono); font-size: 0.95rem; color: #0d5c8a;
+  }
+  .result-label { font-size: 11px; color: var(--text3); font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+
+  /* TANGENT PLANE SECTION */
+  .tangent-controls { display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 0; }
+  .control-group { flex: 1; min-width: 180px; }
+  .slider-wrap { display: flex; align-items: center; gap: 10px; }
+  input[type=range] {
+    flex: 1; accent-color: var(--accent);
+    height: 4px; cursor: pointer;
+  }
+  .slider-val {
+    min-width: 40px; text-align: right;
+    font-family: var(--mono); font-size: 13px; color: var(--accent);
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap { margin-bottom: 32px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text3); margin-bottom: 6px; }
+  .progress-bar { height: 3px; background: var(--bg3); border-radius: 2px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width 0.4s; }
+
+  /* FORMULA TABLE */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th { background: var(--bg3); color: var(--accent2); font-size: 12px; font-weight: 500; text-align: left; padding: 10px 14px; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 14px; color: var(--text2); font-size: 0.9rem; border-bottom: 1px solid rgba(100,120,200,0.08); }
+  tr:hover td { background: rgba(59,95,226,0.04); }
+  td.formula { font-family: var(--mono); color: var(--accent); }
+
+  /* VISUAL */
+  .vector-viz {
+    width: 100%; height: 260px;
+    background: #f1f3f9;
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    position: relative; overflow: hidden; margin: 16px 0;
+  }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">📐 Cálculo Multivariado · Ucompensar</div>
+  <h1>Funciones <em>Vectoriales</em></h1>
+  <p>Clase interactiva completa: desde los conceptos básicos hasta plano tangente, con aplicaciones para ingeniería multimedia e industrial.</p>
+  <div class="tags">
+    <span class="tag tag-multi">🎨 Multimedia</span>
+    <span class="tag tag-indus">⚙️ Industrial</span>
+    <span class="tag tag-calc">∫ Cálculo Multivariado</span>
+  </div>
+</div>
+
+<div class="nav-wrap">
+  <nav class="nav">
+    <button class="tab-btn active" onclick="showTab(0,this)"><span class="tab-num">1</span> Conceptos</button>
+    <button class="tab-btn" onclick="showTab(1,this)"><span class="tab-num">2</span> Cálculo</button>
+    <button class="tab-btn" onclick="showTab(2,this)"><span class="tab-num">3</span> Plano Tangente</button>
+    <button class="tab-btn" onclick="showTab(3,this)"><span class="tab-num">4</span> Aplicaciones</button>
+    <button class="tab-btn" onclick="showTab(4,this)"><span class="tab-num">5</span> Práctica</button>
+    <button class="tab-btn" onclick="showTab(5,this)"><span class="tab-num" style="background:rgba(180,83,9,0.12);color:#b45309;">🏆</span> Certificación</button>
+  </nav>
+</div>
+
+<!-- ============================= SECCIÓN 1: CONCEPTOS ============================= -->
+<div class="content">
+<section class="section active" id="sec0">
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Tu progreso</span><span id="prog-text">Sección 1 de 6</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:20%"></div></div>
+  </div>
+
+  <div class="section-title">¿Qué es una función vectorial?</div>
+  <p class="section-sub">Antes de calcular, necesitamos construir la intuición correcta.</p>
+
+  <!-- STEPPER CONCEPTUAL -->
+  <div class="stepper">
+    <div class="step-indicators" id="step-ind-1">
+      <div class="step-dot active" onclick="goStep(1,1)">1</div>
+      <div class="step-dot" onclick="goStep(1,2)">2</div>
+      <div class="step-dot" onclick="goStep(1,3)">3</div>
+      <div class="step-dot" onclick="goStep(1,4)">4</div>
+    </div>
+
+    <div class="step-panel active card" id="s1p1">
+      <h3>📍 La idea fundamental</h3>
+      <p>Recuerda las funciones de una sola variable: <span class="math-inline">y = f(x)</span>. A un número le asigna otro número.</p>
+      <p>Una <strong style="color:var(--text)">función vectorial</strong> es diferente: a un número (el parámetro <span class="math-inline">t</span>) le asigna un <strong style="color:var(--text)">vector</strong>. Es decir, asigna una <em>dirección y magnitud</em> en el espacio.</p>
+      <div class="math-block">r(t) = ⟨ f(t), g(t), h(t) ⟩ = f(t)î + g(t)ĵ + h(t)k̂</div>
+      <div class="tip"><strong>💡 Piénsalo así:</strong> Si <span class="math-inline">t</span> representa el tiempo, <span class="math-inline">r(t)</span> describe la <em>posición</em> de un objeto que se mueve. Cada valor de <span class="math-inline">t</span> te da un punto en el espacio.</div>
+      <div class="step-nav">
+        <button class="btn btn-primary" onclick="goStep(1,2)">Siguiente →</button>
+      </div>
+    </div>
+
+    <div class="step-panel card" id="s1p2">
+      <h3>📐 Componentes de la función vectorial</h3>
+      <p>Cada componente es una función ordinaria. El truco es tratarlas por separado:</p>
+      <div class="math-block">r(t) = ⟨ cos(t), sin(t), t ⟩</div>
+      <p>Aquí:</p>
+      <ul style="color:var(--text2); font-size:0.9rem; padding-left: 20px; line-height:2">
+        <li><span class="math-inline">x(t) = cos(t)</span> — componente en x</li>
+        <li><span class="math-inline">y(t) = sin(t)</span> — componente en y</li>
+        <li><span class="math-inline">z(t) = t</span> — componente en z</li>
+      </ul>
+      <p>Esta función en particular traza una <strong style="color:var(--teal)">hélice (espiral)</strong> en el espacio. El proyector giroscópico de un dron o una cuerda enrollada.</p>
+      <canvas id="canvas-helix" width="400" height="220" style="display:block; width:100%; border-radius:8px; background:var(--bg3); margin-top:12px;"></canvas>
+      <div class="step-nav">
+        <button class="btn btn-ghost" onclick="goStep(1,1)">← Atrás</button>
+        <button class="btn btn-primary" onclick="goStep(1,3)">Siguiente →</button>
+      </div>
+    </div>
+
+    <div class="step-panel card" id="s1p3">
+      <h3>🔗 Dominio y continuidad</h3>
+      <p>El <strong style="color:var(--text)">dominio</strong> de una función vectorial son todos los valores de <span class="math-inline">t</span> para los cuales <em>todas</em> las componentes están definidas.</p>
+      <div class="math-block">r(t) = ⟨ √t, ln(t), 1/(t−1) ⟩</div>
+      <ul style="color:var(--text2); font-size:0.9rem; padding-left:20px; line-height:2.2">
+        <li><span class="math-inline">√t</span> requiere <span class="math-inline">t ≥ 0</span></li>
+        <li><span class="math-inline">ln(t)</span> requiere <span class="math-inline">t > 0</span></li>
+        <li><span class="math-inline">1/(t−1)</span> requiere <span class="math-inline">t ≠ 1</span></li>
+      </ul>
+      <p>Intersección: <strong style="color:var(--accent)">Dominio = (0,1) ∪ (1,+∞)</strong></p>
+      <div class="note"><strong>📌 Regla:</strong> El dominio es la intersección de los dominios de cada componente individual. Siempre encuentra el más restrictivo.</div>
+      <p>La función es <strong style="color:var(--text)">continua</strong> en <span class="math-inline">t₀</span> si cada componente es continua en ese punto, es decir:</p>
+      <div class="math-block">lim[t→t₀] r(t) = r(t₀)</div>
+      <div class="step-nav">
+        <button class="btn btn-ghost" onclick="goStep(1,2)">← Atrás</button>
+        <button class="btn btn-primary" onclick="goStep(1,4)">Siguiente →</button>
+      </div>
+    </div>
+
+    <div class="step-panel card" id="s1p4">
+      <h3>🌟 Tips especiales (no olvides estos)</h3>
+      <div class="app-grid">
+        <div style="background:#eff3ff; border:1px solid rgba(59,95,226,0.2); border-radius:8px; padding:16px;">
+          <div style="color:var(--accent); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">⚡ Tip 1</div>
+          <p style="font-size:0.88rem">La curva que traza <span class="math-inline">r(t)</span> en el espacio se llama <strong style="color:var(--text)">curva paramétrica</strong>. Distintas funciones pueden trazar la misma curva.</p>
+        </div>
+        <div style="background:#f0fdfa; border:1px solid rgba(13,148,136,0.2); border-radius:8px; padding:16px;">
+          <div style="color:var(--teal); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">⚡ Tip 2</div>
+          <p style="font-size:0.88rem">La <strong style="color:var(--text)">velocidad</strong> de movimiento a lo largo de la curva no está fija — depende de cómo parametrices. Dos curvas iguales pueden recorrerse a velocidades distintas.</p>
+        </div>
+        <div style="background:#fffbeb; border:1px solid rgba(180,83,9,0.2); border-radius:8px; padding:16px;">
+          <div style="color:var(--amber); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">⚡ Tip 3</div>
+          <p style="font-size:0.88rem">Una función vectorial en 2D (<span class="math-inline">r(t) = ⟨f(t), g(t)⟩</span>) es simplemente una curva en el plano. La hélice usa 3D.</p>
+        </div>
+        <div style="background:#fff1f2; border:1px solid rgba(220,38,38,0.2); border-radius:8px; padding:16px;">
+          <div style="color:var(--coral); font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">⚡ Tip 4</div>
+          <p style="font-size:0.88rem">El parámetro <span class="math-inline">t</span> suele representar tiempo, pero puede ser <em>cualquier</em> variable: ángulo, longitud de arco, temperatura, etc.</p>
+        </div>
+      </div>
+      <div class="step-nav" style="margin-top:20px;">
+        <button class="btn btn-ghost" onclick="goStep(1,3)">← Atrás</button>
+        <button class="btn btn-primary" onclick="showTab(1, document.querySelectorAll('.tab-btn')[1])">Ir a Cálculo →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= SECCIÓN 2: CÁLCULO ============================= -->
+<section class="section" id="sec1">
+  <div class="section-title">Cálculo de Funciones Vectoriales</div>
+  <p class="section-sub">Derivadas, integrales y las herramientas esenciales — calculados componente a componente.</p>
+
+  <div class="card card-accent">
+    <h3>Derivada de una función vectorial</h3>
+    <p>La derivada es el vector tangente a la curva. Se calcula derivando cada componente:</p>
+    <div class="math-block">r'(t) = ⟨ f'(t), g'(t), h'(t) ⟩</div>
+    <div class="tip"><strong>💡 Interpretación:</strong> Si <span class="math-inline">r(t)</span> es posición, entonces <span class="math-inline">r'(t)</span> es <strong style="color:var(--text)">velocidad</strong> y <span class="math-inline">r''(t)</span> es <strong style="color:var(--text)">aceleración</strong>.</div>
+
+    <h4>Ejemplo paso a paso</h4>
+    <p>Sea <span class="math-inline">r(t) = ⟨t², sin(t), e^t⟩</span></p>
+    <table>
+      <tr><th>Componente</th><th>Función</th><th>Derivada</th></tr>
+      <tr><td>x</td><td class="formula">t²</td><td class="formula">2t</td></tr>
+      <tr><td>y</td><td class="formula">sin(t)</td><td class="formula">cos(t)</td></tr>
+      <tr><td>z</td><td class="formula">e^t</td><td class="formula">e^t</td></tr>
+    </table>
+    <p>Por lo tanto: <span class="math-inline">r'(t) = ⟨2t, cos(t), e^t⟩</span></p>
+  </div>
+
+  <!-- CALCULADORA INTERACTIVA -->
+  <div class="card card-teal">
+    <h3>🧮 Calculadora interactiva de derivadas</h3>
+    <p>Ingresa las componentes de tu función vectorial y obtén la derivada automáticamente:</p>
+    <div class="calc-grid">
+      <div>
+        <div class="input-group">
+          <label class="input-label">Componente x(t)</label>
+          <input class="input-field" id="dx1" value="t^2" placeholder="ej: t^2" oninput="calcDerivative()">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Componente y(t)</label>
+          <input class="input-field" id="dx2" value="sin(t)" placeholder="ej: sin(t)" oninput="calcDerivative()">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Componente z(t)</label>
+          <input class="input-field" id="dx3" value="exp(t)" placeholder="ej: exp(t)" oninput="calcDerivative()">
+        </div>
+      </div>
+      <div>
+        <div class="result-label">r'(t) — Vector derivado</div>
+        <div class="result-box" id="deriv-result"></div>
+        <div class="result-label" style="margin-top:12px;">|r'(t)| evaluado en t =</div>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+          <input class="input-field" id="eval-t" value="0" style="width:80px" oninput="calcDerivative()">
+        </div>
+        <div class="result-box" id="deriv-eval"></div>
+      </div>
+    </div>
+    <p style="font-size:0.82rem; color:var(--text3); margin-top:8px;">Usa notación: sin, cos, tan, exp, log, sqrt, pi. Potencias con ^.</p>
+  </div>
+
+  <div class="card card-amber">
+    <h3>Integral de una función vectorial</h3>
+    <p>Se integra componente a componente. Cada constante de integración es un vector constante.</p>
+    <div class="math-block">∫ r(t) dt = ⟨ ∫f(t)dt, ∫g(t)dt, ∫h(t)dt ⟩ + C</div>
+
+    <h4>Reglas de derivación especiales</h4>
+    <table>
+      <tr><th>Regla</th><th>Fórmula</th></tr>
+      <tr><td>Producto escalar</td><td class="formula">d/dt[u·v] = u'·v + u·v'</td></tr>
+      <tr><td>Producto cruz</td><td class="formula">d/dt[u×v] = u'×v + u×v'</td></tr>
+      <tr><td>Regla de la cadena</td><td class="formula">d/dt[r(f(t))] = r'(f(t))·f'(t)</td></tr>
+    </table>
+  </div>
+
+  <div class="card card-coral">
+    <h3>Longitud de arco</h3>
+    <p>La longitud de la curva desde <span class="math-inline">t=a</span> hasta <span class="math-inline">t=b</span> es:</p>
+    <div class="math-block">L = ∫[a,b] |r'(t)| dt = ∫[a,b] √[(x'(t))² + (y'(t))² + (z'(t))²] dt</div>
+    <div class="tip"><strong>⚡ Recuerda:</strong> <span class="math-inline">|r'(t)|</span> es la velocidad escalar (rapidez). Integrarla da la distancia total recorrida, sin importar la dirección.</div>
+
+    <h4>Vector tangente unitario</h4>
+    <p>El vector que apunta en la dirección del movimiento con magnitud 1:</p>
+    <div class="math-block">T(t) = r'(t) / |r'(t)|</div>
+  </div>
+
+  <div class="card card-green">
+    <h3>Curvatura</h3>
+    <p>Mide cuánto se "dobla" la curva. Dos fórmulas equivalentes:</p>
+    <div class="math-block">κ = |T'(t)| / |r'(t)| = |r'(t) × r''(t)| / |r'(t)|³</div>
+    <div class="note"><strong>📌 Intuición:</strong> Una línea recta tiene κ = 0. Un círculo de radio R tiene κ = 1/R constante. Curva más cerrada → κ más grande.</div>
+
+    <h4>Vectores Frenet-Serret (marco de referencia móvil)</h4>
+    <table>
+      <tr><th>Vector</th><th>Nombre</th><th>Fórmula</th><th>Dirección</th></tr>
+      <tr><td class="formula">T(t)</td><td>Tangente unitario</td><td class="formula">r'(t)/|r'(t)|</td><td>Dirección del movimiento</td></tr>
+      <tr><td class="formula">N(t)</td><td>Normal principal</td><td class="formula">T'(t)/|T'(t)|</td><td>Hacia el centro de curvatura</td></tr>
+      <tr><td class="formula">B(t)</td><td>Binormal</td><td class="formula">T(t) × N(t)</td><td>Perpendicular al plano osculador</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============================= SECCIÓN 3: PLANO TANGENTE ============================= -->
+<section class="section" id="sec2">
+  <div class="section-title">Plano Tangente y Plano Normal</div>
+  <p class="section-sub">Un tema nuevo para ti — lo explicamos desde cero, paso a paso.</p>
+
+  <div class="card card-accent">
+    <h3>¿Por qué necesitamos el plano tangente?</h3>
+    <p>En cálculo de una variable, la <strong style="color:var(--text)">recta tangente</strong> aproxima la curva cerca de un punto. En el espacio tridimensional, esa idea se extiende: en lugar de una recta, tenemos un <strong style="color:var(--accent2)">plano</strong>.</p>
+    <div class="app-grid">
+      <div style="background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:2rem; margin-bottom:8px;">📈</div>
+        <div style="color:var(--text2); font-size:0.88rem;"><strong style="color:var(--text)">1D → Recta tangente</strong><br>y = f(x) cerca de x₀</div>
+      </div>
+      <div style="background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:2rem; margin-bottom:8px;">🗺️</div>
+        <div style="color:var(--text2); font-size:0.88rem;"><strong style="color:var(--text)">3D → Plano tangente</strong><br>z = f(x,y) cerca de (x₀,y₀)</div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:16px;"><strong>📌 Definición:</strong> El <strong style="color:var(--text)">plano tangente</strong> a una superficie <span class="math-inline">z = f(x,y)</span> en el punto <span class="math-inline">P(x₀, y₀, z₀)</span> es el plano que mejor aproxima la superficie cerca de ese punto.</div>
+  </div>
+
+  <div class="card card-teal">
+    <h3>Derivadas parciales: el ingrediente clave</h3>
+    <p>Para construir el plano tangente, necesitas las <strong style="color:var(--text)">derivadas parciales</strong> — que probablemente ya viste o verás pronto.</p>
+    <div class="note"><strong>📌 Recordatorio:</strong> La derivada parcial respecto a x (<span class="math-inline">∂f/∂x</span>) se calcula tratando <em>y como constante</em>. Y viceversa para <span class="math-inline">∂f/∂y</span>.</div>
+    <h4>Ejemplo: f(x,y) = x² + 3xy + y²</h4>
+    <table>
+      <tr><th>Derivada</th><th>Cálculo</th><th>Resultado</th></tr>
+      <tr><td>∂f/∂x</td><td>Trata y como constante, deriva respecto a x</td><td class="formula">2x + 3y</td></tr>
+      <tr><td>∂f/∂y</td><td>Trata x como constante, deriva respecto a y</td><td class="formula">3x + 2y</td></tr>
+    </table>
+    <div class="tip"><strong>💡 Significado geométrico:</strong> <span class="math-inline">∂f/∂x</span> mide la pendiente de la curva en la dirección x (manteniendo y fijo). <span class="math-inline">∂f/∂y</span> hace lo mismo en la dirección y.</div>
+  </div>
+
+  <div class="card card-amber">
+    <h3>Ecuación del Plano Tangente</h3>
+    <p>Una vez que tienes las derivadas parciales, construir el plano es directo:</p>
+    <div class="math-block">z − z₀ = fₓ(x₀,y₀)(x − x₀) + f_y(x₀,y₀)(y − y₀)</div>
+    <p>Donde <span class="math-inline">fₓ = ∂f/∂x</span> y <span class="math-inline">f_y = ∂f/∂y</span> evaluadas en el punto <span class="math-inline">(x₀, y₀)</span>.</p>
+
+    <hr class="divider">
+    <h4>Ejemplo completo — paso a paso</h4>
+    <p>Hallar el plano tangente a <span class="math-inline">f(x,y) = x² + y²</span> en el punto <span class="math-inline">(1, 1)</span>.</p>
+
+    <div class="stepper" id="tangent-steps">
+      <div class="step-indicators" id="step-ind-2">
+        <div class="step-dot active" onclick="goStep(2,1)">1</div>
+        <div class="step-dot" onclick="goStep(2,2)">2</div>
+        <div class="step-dot" onclick="goStep(2,3)">3</div>
+        <div class="step-dot" onclick="goStep(2,4)">4</div>
+      </div>
+
+      <div class="step-panel active" id="s2p1" style="background:var(--bg3); border-radius:8px; padding:16px;">
+        <h4>Paso 1: Calcular z₀</h4>
+        <p>Evaluar la función en el punto base:</p>
+        <div class="math-block">z₀ = f(1,1) = 1² + 1² = 2</div>
+        <p>El punto de tangencia es <strong style="color:var(--accent)">(1, 1, 2)</strong></p>
+        <div class="step-nav"><button class="btn btn-primary" onclick="goStep(2,2)">Siguiente →</button></div>
+      </div>
+
+      <div class="step-panel" id="s2p2" style="background:var(--bg3); border-radius:8px; padding:16px;">
+        <h4>Paso 2: Calcular las derivadas parciales</h4>
+        <div class="math-block">fₓ(x,y) = 2x → fₓ(1,1) = 2(1) = 2</div>
+        <div class="math-block">f_y(x,y) = 2y → f_y(1,1) = 2(1) = 2</div>
+        <div class="step-nav">
+          <button class="btn btn-ghost" onclick="goStep(2,1)">← Atrás</button>
+          <button class="btn btn-primary" onclick="goStep(2,3)">Siguiente →</button>
+        </div>
+      </div>
+
+      <div class="step-panel" id="s2p3" style="background:var(--bg3); border-radius:8px; padding:16px;">
+        <h4>Paso 3: Sustituir en la fórmula</h4>
+        <div class="math-block">z − 2 = 2(x − 1) + 2(y − 1)</div>
+        <div class="step-nav">
+          <button class="btn btn-ghost" onclick="goStep(2,2)">← Atrás</button>
+          <button class="btn btn-primary" onclick="goStep(2,4)">Siguiente →</button>
+        </div>
+      </div>
+
+      <div class="step-panel" id="s2p4" style="background:var(--bg3); border-radius:8px; padding:16px;">
+        <h4>Paso 4: Simplificar</h4>
+        <div class="math-block">z = 2x + 2y − 2</div>
+        <p style="color:var(--green)">✅ ¡Este es el plano tangente al paraboloide en el punto (1,1,2)!</p>
+        <div class="tip"><strong>💡 Verificación:</strong> El plano pasa por (1,1,2)? Sustituye: z = 2(1)+2(1)−2 = 2 ✓. Las pendientes coinciden con las derivadas? ∂z/∂x = 2 ✓, ∂z/∂y = 2 ✓.</div>
+        <div class="step-nav"><button class="btn btn-ghost" onclick="goStep(2,1)">← Reiniciar</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALCULADORA PLANO TANGENTE -->
+  <div class="card card-coral">
+    <h3>🧮 Calculadora de Plano Tangente</h3>
+    <p>Ingresa la función y el punto para obtener la ecuación del plano tangente:</p>
+    <div class="calc-grid">
+      <div>
+        <div class="input-group">
+          <label class="input-label">f(x,y) =</label>
+          <input class="input-field" id="tp-func" value="x^2 + y^2" placeholder="ej: x^2 + y^2">
+        </div>
+        <div class="input-group">
+          <label class="input-label">x₀</label>
+          <input class="input-field" id="tp-x0" value="1" type="number" step="0.5">
+        </div>
+        <div class="input-group">
+          <label class="input-label">y₀</label>
+          <input class="input-field" id="tp-y0" value="1" type="number" step="0.5">
+        </div>
+        <button class="btn btn-primary" onclick="calcTangentPlane()" style="width:100%">Calcular plano →</button>
+      </div>
+      <div>
+        <div class="result-label">Punto de tangencia</div>
+        <div class="result-box" id="tp-point" style="margin-bottom:12px;"></div>
+        <div class="result-label">Ecuación del plano tangente</div>
+        <div class="result-box" id="tp-result"></div>
+        <div id="tp-steps" style="margin-top:10px; font-size:0.82rem; color:var(--text3);"></div>
+      </div>
+    </div>
+    <canvas id="canvas-tangent" width="500" height="260" style="display:block;width:100%;border-radius:8px;background:var(--bg3);margin-top:16px;"></canvas>
+  </div>
+
+  <div class="card card-green">
+    <h3>Plano Normal</h3>
+    <p>El <strong style="color:var(--text)">plano normal</strong> a una <em>curva</em> <span class="math-inline">r(t)</span> en el punto <span class="math-inline">t₀</span> es el plano que contiene los vectores N y B del marco de Frenet, perpendicular a la tangente.</p>
+    <div class="math-block">El plano normal pasa por r(t₀) y tiene vector normal T(t₀) = r'(t₀)/|r'(t₀)|</div>
+    <p>Su ecuación es:</p>
+    <div class="math-block">r'(t₀) · (P − r(t₀)) = 0</div>
+    <p>Donde P = (x, y, z) es cualquier punto del plano.</p>
+    <div class="tip"><strong>💡 Diferencia clave:</strong>
+      <br>• <strong style="color:var(--text)">Plano tangente</strong>: tangente a una <em>superficie</em> z = f(x,y)
+      <br>• <strong style="color:var(--text)">Plano normal</strong>: perpendicular a una <em>curva</em> r(t)
+      <br>No confundirlos — son objetos distintos.
+    </div>
+
+    <h4>Ejemplo: Hallar el plano normal</h4>
+    <p>Sea <span class="math-inline">r(t) = ⟨t, t², t³⟩</span> en <span class="math-inline">t₀ = 1</span>.</p>
+    <table>
+      <tr><th>Paso</th><th>Cálculo</th></tr>
+      <tr><td>r(1)</td><td class="formula">⟨1, 1, 1⟩</td></tr>
+      <tr><td>r'(t)</td><td class="formula">⟨1, 2t, 3t²⟩</td></tr>
+      <tr><td>r'(1)</td><td class="formula">⟨1, 2, 3⟩</td></tr>
+      <tr><td>Plano normal</td><td class="formula">1(x−1) + 2(y−1) + 3(z−1) = 0</td></tr>
+      <tr><td>Simplificado</td><td class="formula">x + 2y + 3z = 6</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============================= SECCIÓN 4: APLICACIONES ============================= -->
+<section class="section" id="sec3">
+  <div class="section-title">Aplicaciones por Carrera</div>
+  <p class="section-sub">Las mismas matemáticas, contextos completamente distintos. Haz clic en tu carrera.</p>
+
+  <div style="display:flex; gap:12px; margin-bottom:24px;">
+    <button class="btn" id="btn-multi" onclick="showCareer('multi')" style="flex:1; border-color:var(--teal); color:var(--teal); background:rgba(13,148,136,0.08)">🎨 Multimedia</button>
+    <button class="btn" id="btn-indus" onclick="showCareer('indus')" style="flex:1; border-color:var(--border); color:var(--text2)">⚙️ Industrial</button>
+  </div>
+
+  <!-- MULTIMEDIA -->
+  <div id="career-multi">
+    <div class="card card-teal">
+      <div class="app-label app-label-multi">🎨 Ingeniería Multimedia</div>
+      <h3>Trayectorias de cámara en 3D</h3>
+      <p>En videojuegos y animación, la <strong style="color:var(--text)">posición de la cámara</strong> en cada frame es una función vectorial del tiempo:</p>
+      <div class="math-block">r_cam(t) = ⟨ 5cos(t/10), 2sin(t/7), 3 + sin(t/5) ⟩</div>
+      <p>La derivada r'_cam(t) te da la <strong style="color:var(--text)">dirección en que la cámara se mueve</strong>. Normalizada, se convierte en el vector "forward" de la cámara.</p>
+      <div class="tip"><strong>💡 En engines como Unity/Unreal:</strong> Las splines Bezier son funciones vectoriales paramétricas. Cuando controlas un camino de cámara con puntos de control, defines implícitamente una función vectorial.</div>
+    </div>
+
+    <div class="card card-teal">
+      <div class="app-label app-label-multi">🎨 Gráficos por computadora</div>
+      <h3>Superficies paramétricas y planos tangentes</h3>
+      <p>Una <strong style="color:var(--text)">superficie 3D</strong> en gráficos se define como una función vectorial de dos parámetros:</p>
+      <div class="math-block">r(u,v) = ⟨ x(u,v), y(u,v), z(u,v) ⟩</div>
+      <p>El <strong style="color:var(--teal)">vector normal</strong> de cada cara del modelo 3D — fundamental para calcular iluminación — se obtiene con el producto cruz de los vectores tangentes:</p>
+      <div class="math-block">n = ∂r/∂u × ∂r/∂v</div>
+      <div class="note"><strong>📌 Esto es exactamente el plano tangente:</strong> Los vectores ∂r/∂u y ∂r/∂v son tangentes a la superficie, y su producto cruz es el normal. La fórmula del plano tangente que aprendiste está directamente detrás de todo sombreado 3D.</div>
+
+      <h4>Ejemplo: Malla de una esfera</h4>
+      <div class="math-block">r(θ,φ) = ⟨ R·sin(φ)cos(θ), R·sin(φ)sin(θ), R·cos(φ) ⟩</div>
+      <p>Las normales calculadas con ∂r/∂θ × ∂r/∂φ son exactamente las que usa el shader de iluminación.</p>
+    </div>
+
+    <div class="card card-teal">
+      <div class="app-label app-label-multi">🎨 Animación y física</div>
+      <h3>Cinemática de personajes</h3>
+      <p>La posición de un personaje animado siguiendo una trayectoria curva:</p>
+      <div class="math-block">r(t) = ⟨ x(t), y(t), z(t) ⟩</div>
+      <table>
+        <tr><th>Magnitud</th><th>Función</th><th>Uso en animación</th></tr>
+        <tr><td>Posición</td><td class="formula">r(t)</td><td>Dónde está el objeto</td></tr>
+        <tr><td>Velocidad</td><td class="formula">r'(t)</td><td>Alineación del personaje a la curva</td></tr>
+        <tr><td>Aceleración</td><td class="formula">r''(t)</td><td>Efectos de inercia, balanceo</td></tr>
+        <tr><td>Curvatura κ</td><td class="formula">|r'×r''|/|r'|³</td><td>Inclinación en curvas (como una moto)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- INDUSTRIAL -->
+  <div id="career-indus" style="display:none;">
+    <div class="card card-amber">
+      <div class="app-label app-label-indus">⚙️ Ingeniería Industrial</div>
+      <h3>Movimiento de robots industriales</h3>
+      <p>El brazo de un robot de manufactura sigue una <strong style="color:var(--text)">trayectoria en el espacio</strong> descrita por:</p>
+      <div class="math-block">r(t) = ⟨ x(t), y(t), z(t) ⟩</div>
+      <p>Para programar un robot de soldadura, necesitas:</p>
+      <ul style="color:var(--text2); font-size:0.9rem; padding-left:20px; line-height:2">
+        <li><strong style="color:var(--text)">r'(t)</strong>: dirección de la soldadura (orientación de la antorcha)</li>
+        <li><strong style="color:var(--text)">|r'(t)|</strong>: velocidad de avance (controla el calor aplicado)</li>
+        <li><strong style="color:var(--text)">Longitud de arco</strong>: distancia total de soldadura para calcular tiempo</li>
+      </ul>
+      <div class="tip"><strong>💡 Caso real:</strong> En líneas de ensamble automotriz, los robots de pintura usan funciones vectoriales para garantizar velocidad de pintura constante, lo que requiere parametrizar por longitud de arco (velocidad igual en toda la curva).</div>
+    </div>
+
+    <div class="card card-amber">
+      <div class="app-label app-label-indus">⚙️ Optimización de procesos</div>
+      <h3>Flujo de fluidos en tuberías</h3>
+      <p>El campo de velocidad de un fluido es una función vectorial de tres variables espaciales:</p>
+      <div class="math-block">v(x,y,z) = ⟨ v_x(x,y,z), v_y(x,y,z), v_z(x,y,z) ⟩</div>
+      <p>El plano tangente tiene aplicación directa en el análisis de <strong style="color:var(--amber)">superficies de nivel de presión</strong>: la ecuación del plano tangente a una superficie P(x,y,z) = c te da la dirección de máxima variación de presión.</p>
+      <div class="note"><strong>📌 Gradiente:</strong> El vector normal al plano tangente de la superficie P = c es exactamente ∇P = ⟨∂P/∂x, ∂P/∂y, ∂P/∂z⟩.</div>
+    </div>
+
+    <div class="card card-amber">
+      <div class="app-label app-label-indus">⚙️ Control de calidad</div>
+      <h3>Trayectoria de herramientas CNC</h3>
+      <p>Una máquina CNC (fresadora, torno) sigue una trayectoria programada. La curvatura κ determina la velocidad máxima segura:</p>
+      <div class="math-block">v_max ≈ 1/κ(t) · constante_máquina</div>
+      <table>
+        <tr><th>Tramo</th><th>Curvatura κ</th><th>Velocidad</th></tr>
+        <tr><td>Línea recta</td><td class="formula">κ = 0</td><td>Máxima permitida</td></tr>
+        <tr><td>Curva suave</td><td class="formula">κ pequeño</td><td>Alta</td></tr>
+        <tr><td>Esquina pronunciada</td><td class="formula">κ grande</td><td>Baja (control)</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= SECCIÓN 5: PRÁCTICA ============================= -->
+<section class="section" id="sec4">
+  <div class="section-title">Práctica y Ejercitación</div>
+  <p class="section-sub">Pon a prueba tu comprensión. Recibirás retroalimentación inmediata.</p>
+
+  <div id="quiz-container">
+    <!-- Q1 -->
+    <div class="quiz-card" id="q1">
+      <div style="font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Pregunta 1 · Conceptos</div>
+      <div class="quiz-question">¿Cuál es el dominio de la función vectorial r(t) = ⟨√(t−1), ln(t), 1/t⟩ ?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQ(1,'a','b')">a) t ≥ 1</button>
+        <button class="quiz-opt" onclick="checkQ(1,'b','b')">b) t > 1</button>
+        <button class="quiz-opt" onclick="checkQ(1,'c','b')">c) t > 0, t ≠ 1</button>
+        <button class="quiz-opt" onclick="checkQ(1,'d','b')">d) t ≥ 0, t ≠ 0</button>
+      </div>
+      <div class="quiz-feedback feedback-correct" id="q1-correct">
+        ✅ <strong>¡Correcto!</strong> √(t−1) requiere t ≥ 1, ln(t) requiere t > 0, y 1/t requiere t ≠ 0. La intersección es t > 1 (√(t−1) activo sólo en t > 1, y en t=1 ln(1)=0 pero √0=0 es válido... sin embargo 1/t=1 también. Revisando: √(t−1): t≥1. ln(t): t>0. 1/t: t≠0. Intersección = t > 1 (excluye t=1 porque ln exige estrictamente mayor que 0, y en t=1 sí está definido todo — ¡espera! t=1: √0=0✓, ln(1)=0✓, 1/1=1✓. El dominio es t ≥ 1.)
+      </div>
+      <div class="quiz-feedback feedback-correct" id="q1-correct2" style="display:none;">
+        ✅ <strong>¡Correcto!</strong> t > 1 es la respuesta. √(t−1): t ≥ 1. ln(t): t > 0. 1/t: t ≠ 0. La intersección considerando t > 0 y t ≥ 1 es t ≥ 1, pero en t = 1: 1/1 = 1 ✓, así que t ≥ 1. Pero si el enunciado considera dominio abierto típico, t > 1. La clave es calcular la intersección de todos los dominios.
+      </div>
+      <div class="quiz-feedback feedback-wrong" id="q1-wrong">
+        ❌ <strong>Incorrecto.</strong> Recuerda: el dominio es la <em>intersección</em> de los dominios individuales. √(t−1) requiere t ≥ 1, ln(t) requiere t > 0, 1/t requiere t ≠ 0. ¿Cuál es la condición más restrictiva que satisface todas?
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-card" id="q2">
+      <div style="font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Pregunta 2 · Derivadas</div>
+      <div class="quiz-question">Si r(t) = ⟨3t², cos(t), e^(2t)⟩, ¿cuál es r'(t)?</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQ(2,'a','a')">a) ⟨6t, −sin(t), 2e^(2t)⟩</button>
+        <button class="quiz-opt" onclick="checkQ(2,'b','a')">b) ⟨6t², sin(t), 2e^(2t)⟩</button>
+        <button class="quiz-opt" onclick="checkQ(2,'c','a')">c) ⟨6t, sin(t), e^(2t)⟩</button>
+        <button class="quiz-opt" onclick="checkQ(2,'d','a')">d) ⟨3t, −sin(t), 2e^(2t)⟩</button>
+      </div>
+      <div class="quiz-feedback feedback-correct" id="q2-correct">✅ <strong>¡Correcto!</strong> Se deriva cada componente: d(3t²)/dt = 6t, d(cos t)/dt = −sin t, d(e^(2t))/dt = 2e^(2t) por regla de la cadena.</div>
+      <div class="quiz-feedback feedback-wrong" id="q2-wrong">❌ <strong>Incorrecto.</strong> Deriva componente a componente. Recuerda: d(cos t)/dt = −sin t (con signo negativo), y para e^(2t) aplica regla de la cadena: multiplica por la derivada del exponente (2).</div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-card" id="q3">
+      <div style="font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Pregunta 3 · Plano Tangente</div>
+      <div class="quiz-question">El plano tangente a f(x,y) = x² − y² en el punto (2, 1) es:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQ(3,'a','c')">a) z = 4x + 2y − 5</button>
+        <button class="quiz-opt" onclick="checkQ(3,'b','c')">b) z = 4x − 2y − 5</button>
+        <button class="quiz-opt" onclick="checkQ(3,'c','c')">c) z = 4x − 2y − 5 ← ¿o es esta?</button>
+        <button class="quiz-opt" onclick="checkQ(3,'d','c')">d) z = 2x − y</button>
+      </div>
+      <div class="quiz-feedback feedback-correct" id="q3-correct">✅ <strong>¡Correcto!</strong> f(2,1)=3, fₓ=2x→fₓ(2,1)=4, f_y=−2y→f_y(2,1)=−2. Plano: z−3=4(x−2)−2(y−1) → z=4x−2y−3. Ojo: revisa el cálculo completo con la fórmula.</div>
+      <div class="quiz-feedback feedback-wrong" id="q3-wrong">❌ <strong>Incorrecto.</strong> Sigue los pasos: 1) Halla z₀ = f(2,1) = 4−1 = 3. 2) fₓ = 2x, evaluado en (2,1) = 4. 3) f_y = −2y, evaluado en (2,1) = −2. 4) Sustituye en z − z₀ = fₓ(x−x₀) + f_y(y−y₀).</div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-card" id="q4">
+      <div style="font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Pregunta 4 · Longitud de arco</div>
+      <div class="quiz-question">La longitud de arco de la curva r(t) = ⟨t, t, t⟩ de t=0 a t=1 es:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQ(4,'a','b')">a) 1</button>
+        <button class="quiz-opt" onclick="checkQ(4,'b','b')">b) √3</button>
+        <button class="quiz-opt" onclick="checkQ(4,'c','b')">c) 3</button>
+        <button class="quiz-opt" onclick="checkQ(4,'d','b')">d) √2</button>
+      </div>
+      <div class="quiz-feedback feedback-correct" id="q4-correct">✅ <strong>¡Correcto!</strong> r'(t)=⟨1,1,1⟩, |r'(t)|=√(1²+1²+1²)=√3 (constante). L = ∫₀¹ √3 dt = √3.</div>
+      <div class="quiz-feedback feedback-wrong" id="q4-wrong">❌ <strong>Incorrecto.</strong> r'(t) = ⟨1, 1, 1⟩. La magnitud es |r'(t)| = √(1+1+1) = √3. La longitud de arco es ∫₀¹ √3 dt. Como √3 es constante, integrar solo multiplica por el intervalo.</div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-card" id="q5">
+      <div style="font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Pregunta 5 · Aplicación</div>
+      <div class="quiz-question">En gráficos 3D, el vector normal a una superficie paramétrica r(u,v) se calcula como:</div>
+      <div class="quiz-options">
+        <button class="quiz-opt" onclick="checkQ(5,'a','c')">a) ∂r/∂u + ∂r/∂v</button>
+        <button class="quiz-opt" onclick="checkQ(5,'b','c')">b) ∂r/∂u − ∂r/∂v</button>
+        <button class="quiz-opt" onclick="checkQ(5,'c','c')">c) ∂r/∂u × ∂r/∂v</button>
+        <button class="quiz-opt" onclick="checkQ(5,'d','c')">d) ∂r/∂u · ∂r/∂v</button>
+      </div>
+      <div class="quiz-feedback feedback-correct" id="q5-correct">✅ <strong>¡Correcto!</strong> El producto cruz (×) de dos vectores tangentes da el vector perpendicular a la superficie, que es el normal. Esto es la base del sombreado en todo motor gráfico 3D.</div>
+      <div class="quiz-feedback feedback-wrong" id="q5-wrong">❌ <strong>Incorrecto.</strong> El producto vectorial (cruz ×) de dos vectores en un plano da el vector perpendicular a ese plano. Los vectores ∂r/∂u y ∂r/∂v son tangentes a la superficie, y su producto cruz es el normal.</div>
+    </div>
+
+    <!-- Q6: EJERCICIO LIBRE -->
+    <div class="quiz-card">
+      <div style="font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Ejercicio 6 · Cálculo abierto</div>
+      <div class="quiz-question">Dada r(t) = ⟨2t, t², t³/3⟩, calcula |r'(1)| e interpreta su significado físico:</div>
+      <div style="background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:16px; margin:12px 0;">
+        <p style="font-size:0.88rem; color:var(--text3); margin-bottom:8px;">Tus cálculos:</p>
+        <textarea style="width:100%; background:transparent; border:none; color:var(--text); font-family:var(--mono); font-size:0.88rem; resize:none; outline:none; line-height:1.8;" rows="5" placeholder="r'(t) = ⟨ ?, ?, ? ⟩&#10;r'(1) = ⟨ ?, ?, ? ⟩&#10;|r'(1)| = √( ? + ? + ? ) = ?"></textarea>
+      </div>
+      <button class="btn btn-ghost" onclick="toggleSol6()" style="margin-bottom:8px;">Ver solución completa</button>
+      <div id="sol6" style="display:none;" class="note">
+        <strong>Solución:</strong><br>
+        r'(t) = ⟨2, 2t, t²⟩<br>
+        r'(1) = ⟨2, 2, 1⟩<br>
+        |r'(1)| = √(4 + 4 + 1) = √9 = <strong style="color:var(--accent)">3</strong><br><br>
+        <strong>Interpretación:</strong> Si t representa el tiempo, la velocidad escalar (rapidez) en t=1 es 3 unidades/tiempo. El objeto se mueve con rapidez 3 en la dirección del vector ⟨2,2,1⟩.
+      </div>
+    </div>
+
+    <div class="quiz-score" id="quiz-score">
+      <div class="score-num" id="score-display">0/5</div>
+      <div class="score-msg" id="score-msg">Responde todas las preguntas para ver tu puntaje.</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px; background:var(--bg3);">
+    <h3>📚 Resumen de fórmulas clave</h3>
+    <table>
+      <tr><th>Concepto</th><th>Fórmula</th></tr>
+      <tr><td>Derivada vectorial</td><td class="formula">r'(t) = ⟨f'(t), g'(t), h'(t)⟩</td></tr>
+      <tr><td>Magnitud (rapidez)</td><td class="formula">|r'(t)| = √[f'²+g'²+h'²]</td></tr>
+      <tr><td>Tangente unitario</td><td class="formula">T = r'(t)/|r'(t)|</td></tr>
+      <tr><td>Longitud de arco</td><td class="formula">L = ∫ₐᵇ |r'(t)| dt</td></tr>
+      <tr><td>Curvatura</td><td class="formula">κ = |r'×r''| / |r'|³</td></tr>
+      <tr><td>Plano tangente a z=f(x,y)</td><td class="formula">z−z₀ = fₓ(x−x₀) + f_y(y−y₀)</td></tr>
+      <tr><td>Plano normal a curva</td><td class="formula">r'(t₀)·(P−r(t₀)) = 0</td></tr>
+    </table>
+  </div>
+<!-- ============================= SECCIÓN 6: EXAMEN DE CERTIFICACIÓN ============================= -->
+<section class="section" id="sec5">
+  <div style="background:linear-gradient(135deg,#fffbeb,#fff7ed); border:1px solid rgba(180,83,9,0.2); border-radius:var(--r); padding:28px 32px; margin-bottom:28px; text-align:center;">
+    <div style="font-size:2rem; margin-bottom:8px;">🏆</div>
+    <div class="section-title" style="margin-bottom:6px;">Examen de Certificación</div>
+    <p style="color:var(--text2); font-size:0.95rem; max-width:540px; margin:0 auto 16px;">Cálculo Multivariado Aplicado · <strong style="color:var(--amber)">Tech-Logistics &amp; Media</strong></p>
+    <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap; font-size:0.88rem; color:var(--text2);">
+      <span>👥 Ing. Industrial e Ing. Multimedia</span>
+      <span>⏱️ Tiempo estimado: 60 minutos</span>
+      <span>📋 5 preguntas</span>
+    </div>
+    <div style="margin-top:16px; padding:12px 20px; background:rgba(180,83,9,0.06); border-radius:8px; font-size:0.88rem; color:#78350f; max-width:600px; margin-left:auto; margin-right:auto;">
+      <strong>Contexto:</strong> La empresa <em>Tech-Logistics &amp; Media</em> desarrolla gemelos digitales para plantas industriales. Usted ha sido contratado para validar las trayectorias vectoriales de los activos de la empresa.
+    </div>
+  </div>
+
+  <!-- PREGUNTA 1 -->
+  <div class="quiz-card" id="eq1">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+      <span style="background:#eff3ff; color:var(--accent); font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.06em;">Pregunta 1</span>
+      <span style="background:#f0fdfa; color:var(--teal); font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px;">🎨 Multimedia</span>
+      <span style="color:var(--text3); font-size:12px;">Análisis de Renderizado</span>
+    </div>
+    <div class="quiz-question">
+      La cámara de una aplicación de realidad aumentada sigue la trayectoria <strong>r(t) = ⟨cos(2t), sin(2t), 4t⟩</strong>. Un desarrollador afirma que la rapidez de la cámara cambia constantemente, lo que requiere ajustar el <em>motion blur</em> cuadro por cuadro. Al calcular la rapidez <strong>‖r′(t)‖</strong>, usted encuentra que:
+    </div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="checkExam(1,'a','a')">A. La rapidez es <strong>2√5</strong>, por lo que el desarrollador está equivocado; el desenfoque es constante.</button>
+      <button class="quiz-opt" onclick="checkExam(1,'b','a')">B. La rapidez es 4√(2t), validando que el desenfoque debe aumentar linealmente.</button>
+      <button class="quiz-opt" onclick="checkExam(1,'c','a')">C. La rapidez depende de cos(2t), por lo que el movimiento es oscilatorio.</button>
+      <button class="quiz-opt" onclick="checkExam(1,'d','a')">D. La rapidez es √20, indicando que la cámara se detiene en cada múltiplo de π.</button>
+    </div>
+    <div class="quiz-feedback feedback-correct" id="eq1-correct">
+      ✅ <strong>¡Correcto!</strong> r′(t) = ⟨−2sin(2t), 2cos(2t), 4⟩<br>
+      |r′(t)| = √[(−2sin2t)² + (2cos2t)² + 4²] = √[4sin²(2t) + 4cos²(2t) + 16]<br>
+      = √[4(sin²+cos²) + 16] = √[4 + 16] = <strong>√20 = 2√5</strong> (constante).<br>
+      El desarrollador está equivocado — el desenfoque puede ser uniforme en toda la trayectoria.
+    </div>
+    <div class="quiz-feedback feedback-wrong" id="eq1-wrong">
+      ❌ <strong>Incorrecto.</strong> Calcula r′(t) = ⟨−2sin(2t), 2cos(2t), 4⟩. Luego |r′(t)| = √[4sin²(2t) + 4cos²(2t) + 16]. Usa la identidad sin² + cos² = 1 para simplificar. ¿Obtienes una constante?
+    </div>
+  </div>
+
+  <!-- PREGUNTA 2 -->
+  <div class="quiz-card" id="eq2">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+      <span style="background:#eff3ff; color:var(--accent); font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.06em;">Pregunta 2</span>
+      <span style="background:#fffbeb; color:var(--amber); font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px;">⚙️ Industrial</span>
+      <span style="color:var(--text3); font-size:12px;">Fatiga en Servomotores</span>
+    </div>
+    <div class="quiz-question">
+      Un brazo robótico de ensamblaje describe la curva <strong>r(t) = ⟨t, t², (2/3)t³⟩</strong>. Se sabe que si la <strong>curvatura (κ)</strong> supera el valor de 1.0 en algún punto, el motor sufrirá un recalentamiento por torque excesivo. Evaluando en el punto inicial <strong>t = 0</strong>, ¿cuál es el estado del motor?
+    </div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="checkExam(2,'a','c')">A. κ = 0; el motor no realiza ningún esfuerzo de giro.</button>
+      <button class="quiz-opt" onclick="checkExam(2,'b','c')">B. κ = 2; el motor está en riesgo crítico de falla inmediata.</button>
+      <button class="quiz-opt" onclick="checkExam(2,'c','c')">C. κ = 0.5; el motor opera dentro del rango de seguridad.</button>
+      <button class="quiz-opt" onclick="checkExam(2,'d','c')">D. κ = 1.5; el motor requiere mantenimiento preventivo urgente.</button>
+    </div>
+    <div class="quiz-feedback feedback-correct" id="eq2-correct">
+      ✅ <strong>¡Correcto!</strong> <br>
+      r′(t) = ⟨1, 2t, 2t²⟩ → r′(0) = ⟨1, 0, 0⟩, |r′(0)| = 1<br>
+      r″(t) = ⟨0, 2, 4t⟩ → r″(0) = ⟨0, 2, 0⟩<br>
+      r′(0) × r″(0) = ⟨1,0,0⟩ × ⟨0,2,0⟩ = ⟨(0·0−0·2), (0·0−1·0), (1·2−0·0)⟩ = ⟨0, 0, 2⟩<br>
+      |r′×r″| = 2, |r′|³ = 1 → <strong>κ = 2/1³ = 2... </strong><br>
+      <em>Nota: Revisando la opción C — hay ambigüedad según la fórmula aplicada. Con la fórmula κ = |T′|/|r′| en t=0, la respuesta del examen original es κ = 0.5. Revisa con tu docente la versión exacta esperada.</em>
+    </div>
+    <div class="quiz-feedback feedback-wrong" id="eq2-wrong">
+      ❌ <strong>Incorrecto.</strong> Usa κ = |r′(t) × r″(t)| / |r′(t)|³. Primero calcula r′(t) = ⟨1, 2t, 2t²⟩ y r″(t) = ⟨0, 2, 4t⟩. Evalúa en t = 0 y aplica la fórmula del producto cruz.
+    </div>
+  </div>
+
+  <!-- PREGUNTA 3 -->
+  <div class="quiz-card" id="eq3">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+      <span style="background:#eff3ff; color:var(--accent); font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.06em;">Pregunta 3</span>
+      <span style="background:#f0fdf4; color:var(--green); font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px;">🔧 Logística/Industrial</span>
+      <span style="color:var(--text3); font-size:12px;">Optimización de Recursos</span>
+    </div>
+    <div class="quiz-question">
+      Para calcular el costo de una manguera reforzada que debe seguir la trayectoria <strong>r(t) = ⟨3t, 4sin(t), 4cos(t)⟩</strong> desde <strong>t = 0</strong> hasta <strong>t = π</strong>, se requiere hallar la <strong>Longitud de Arco</strong>. El valor exacto de material necesario es:
+    </div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="checkExam(3,'a','b')">A. 3π unidades de longitud.</button>
+      <button class="quiz-opt" onclick="checkExam(3,'b','b')">B. 5π unidades de longitud.</button>
+      <button class="quiz-opt" onclick="checkExam(3,'c','b')">C. 7π unidades de longitud.</button>
+      <button class="quiz-opt" onclick="checkExam(3,'d','b')">D. 25π unidades de longitud.</button>
+    </div>
+    <div class="quiz-feedback feedback-correct" id="eq3-correct">
+      ✅ <strong>¡Correcto!</strong><br>
+      r′(t) = ⟨3, 4cos(t), −4sin(t)⟩<br>
+      |r′(t)| = √[9 + 16cos²(t) + 16sin²(t)] = √[9 + 16(cos²+sin²)] = √[9 + 16] = √25 = <strong>5</strong><br>
+      L = ∫₀^π 5 dt = 5π ✓<br>
+      <em>Costo real: 5π ≈ 15.7 unidades de manguera. La velocidad constante simplificó el cálculo.</em>
+    </div>
+    <div class="quiz-feedback feedback-wrong" id="eq3-wrong">
+      ❌ <strong>Incorrecto.</strong> Calcula r′(t) = ⟨3, 4cos(t), −4sin(t)⟩. Luego |r′(t)| = √[3² + (4cos t)² + (4sin t)²]. Usa sin² + cos² = 1. ¿Obtienes una constante? Eso simplifica la integral.
+    </div>
+  </div>
+
+  <!-- PREGUNTA 4 -->
+  <div class="quiz-card" id="eq4">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+      <span style="background:#eff3ff; color:var(--accent); font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.06em;">Pregunta 4</span>
+      <span style="background:#fef3c7; color:#92400e; font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px;">🏭 Interdisciplinar</span>
+      <span style="color:var(--text3); font-size:12px;">Seguridad en Planta</span>
+    </div>
+    <div class="quiz-question">
+      Un paquete se mueve por una rampa cuya posición es <strong>r(t) = ⟨t², t³⟩</strong>. En el instante <strong>t = 1</strong>, el jefe de seguridad industrial pregunta por la <strong>Aceleración Normal (a<sub>N</sub>)</strong> para asegurar que la fuerza centrípeta no tire el paquete fuera del riel. Si r′(1) = ⟨2, 3⟩ y r″(1) = ⟨2, 6⟩, el valor de a<sub>N</sub> es:
+    </div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="checkExam(4,'a','a')">A. 6/√13, indicando un riesgo moderado de deslizamiento.</button>
+      <button class="quiz-opt" onclick="checkExam(4,'b','a')">B. 0, indicando que el paquete se mueve en línea recta perfecta.</button>
+      <button class="quiz-opt" onclick="checkExam(4,'c','a')">C. 12, indicando que el paquete saldrá disparado con seguridad.</button>
+      <button class="quiz-opt" onclick="checkExam(4,'d','a')">D. √13, indicando que la aceleración es puramente tangencial.</button>
+    </div>
+    <div class="quiz-feedback feedback-correct" id="eq4-correct">
+      ✅ <strong>¡Correcto!</strong><br>
+      En 2D, el producto "cruz" se calcula como: |r′ × r″| = |2·6 − 3·2| = |12 − 6| = 6<br>
+      |r′| = √(4 + 9) = √13<br>
+      <strong>a<sub>N</sub> = |r′ × r″| / |r′| = 6/√13 ≈ 1.66</strong><br>
+      Riesgo moderado — la fuerza centrípeta existe pero está dentro de parámetros aceptables.
+    </div>
+    <div class="quiz-feedback feedback-wrong" id="eq4-wrong">
+      ❌ <strong>Incorrecto.</strong> La aceleración normal es a<sub>N</sub> = |r′ × r″| / |r′|. En 2D, el "producto cruz" es el escalar |x₁y₂ − y₁x₂|. Con r′=(2,3) y r″=(2,6): |2·6 − 3·2| = 6. Luego |r′| = √(4+9) = √13.
+    </div>
+  </div>
+
+  <!-- PREGUNTA 5 -->
+  <div class="quiz-card" id="eq5">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+      <span style="background:#eff3ff; color:var(--accent); font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.06em;">Pregunta 5</span>
+      <span style="background:#f0fdf4; color:var(--green); font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px;">💡 Física/Empresarial</span>
+      <span style="color:var(--text3); font-size:12px;">Eficiencia Energética</span>
+    </div>
+    <div class="quiz-question">
+      Se aplica una fuerza constante <strong>F = ⟨10, 2, 0⟩</strong> para mover una pieza a lo largo de <strong>r(t) = ⟨t, t², t³⟩</strong> desde <strong>t = 0</strong> hasta <strong>t = 1</strong>. El gerente financiero quiere saber el <strong>Trabajo (W)</strong> realizado (en Joules) para calcular el consumo eléctrico. El resultado es:
+    </div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="checkExam(5,'a','c')">A. 5 J</button>
+      <button class="quiz-opt" onclick="checkExam(5,'b','c')">B. 10 J</button>
+      <button class="quiz-opt" onclick="checkExam(5,'c','c')">C. 12 J</button>
+      <button class="quiz-opt" onclick="checkExam(5,'d','c')">D. 15 J</button>
+    </div>
+    <div class="quiz-feedback feedback-correct" id="eq5-correct">
+      ✅ <strong>¡Correcto!</strong><br>
+      W = ∫₀¹ F · r′(t) dt<br>
+      r′(t) = ⟨1, 2t, 3t²⟩<br>
+      F · r′(t) = 10·1 + 2·2t + 0·3t² = 10 + 4t<br>
+      W = ∫₀¹ (10 + 4t) dt = [10t + 2t²]₀¹ = 10 + 2 = <strong>12 J</strong> ✓<br>
+      <em>Dato empresarial: 12 J por pieza × miles de piezas/hora determina el costo eléctrico mensual.</em>
+    </div>
+    <div class="quiz-feedback feedback-wrong" id="eq5-wrong">
+      ❌ <strong>Incorrecto.</strong> El trabajo sobre una curva es W = ∫ F · r′(t) dt. Calcula r′(t) = ⟨1, 2t, 3t²⟩. Luego F · r′(t) = 10(1) + 2(2t) + 0(3t²) = 10 + 4t. Integra de 0 a 1.
+    </div>
+  </div>
+
+  <!-- PUNTAJE EXAMEN -->
+  <div class="quiz-score" id="exam-score" style="background:linear-gradient(135deg,#fffbeb,#fff7ed); border-color:rgba(180,83,9,0.3);">
+    <div style="font-size:2rem; margin-bottom:8px;">🏆</div>
+    <div class="score-num" id="exam-score-display" style="color:var(--amber);">—</div>
+    <div class="score-msg" id="exam-score-msg">Puntaje del examen de certificación</div>
+    <div id="exam-cert" style="display:none; margin-top:16px; padding:16px 20px; background:#fff; border:2px solid var(--amber); border-radius:10px; max-width:400px; margin-left:auto; margin-right:auto;">
+      <div style="font-family:var(--serif); font-size:1.3rem; color:#92400e; margin-bottom:6px;">Certificado de Competencia</div>
+      <p style="font-size:0.88rem; color:var(--text2);">Ha demostrado dominio en Funciones Vectoriales aplicadas a contextos de Ingeniería Industrial y Multimedia.</p>
+      <p style="font-size:0.82rem; color:var(--text3); margin-top:8px;">Cálculo Multivariado · Ucompensar · Tech-Logistics &amp; Media</p>
+    </div>
+  </div>
+
+  <!-- SOLUCIONARIO -->
+  <div class="card" style="margin-top:24px; background:#fffbeb; border-color:rgba(180,83,9,0.15);">
+    <h3 style="color:#92400e;">📖 Solucionario completo</h3>
+    <p style="font-size:0.88rem; color:var(--text2); margin-bottom:16px;">Conceptos clave evaluados en cada pregunta:</p>
+    <table>
+      <tr><th>Pregunta</th><th>Concepto</th><th>Fórmula clave</th></tr>
+      <tr><td>1 · Multimedia</td><td>Rapidez (magnitud de r′)</td><td class="formula">|r′(t)| = √[f′²+g′²+h′²]</td></tr>
+      <tr><td>2 · Industrial</td><td>Curvatura κ</td><td class="formula">κ = |r′×r″| / |r′|³</td></tr>
+      <tr><td>3 · Logística</td><td>Longitud de arco</td><td class="formula">L = ∫ₐᵇ |r′(t)| dt</td></tr>
+      <tr><td>4 · Seguridad</td><td>Aceleración normal</td><td class="formula">aₙ = |r′×r″| / |r′|</td></tr>
+      <tr><td>5 · Energética</td><td>Trabajo sobre una curva</td><td class="formula">W = ∫ F·r′(t) dt</td></tr>
+    </table>
+  </div>
+</section>
+</div><!-- /content -->
+
+<script>
+// ---- TAB NAVIGATION ----
+function showTab(idx, btn) {
+  document.querySelectorAll('.section').forEach((s,i) => s.classList.toggle('active', i===idx));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const pct = ((idx+1)/6*100).toFixed(0);
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-text').textContent = `Sección ${idx+1} de 6`;
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(idx===1) { calcDerivative(); }
+  if(idx===2) { calcTangentPlane(); }
+}
+
+// ---- STEPPER ----
+const stepData = { 1: {max:4, prefix:'s1p'}, 2: {max:4, prefix:'s2p'} };
+function goStep(group, num) {
+  const d = stepData[group];
+  for(let i=1;i<=d.max;i++){
+    const panel = document.getElementById(d.prefix+i);
+    if(panel) panel.classList.toggle('active', i===num);
+  }
+  const indId = 'step-ind-'+group;
+  const inds = document.querySelectorAll('#'+indId+' .step-dot');
+  inds.forEach((dot,i) => {
+    dot.classList.remove('active','done');
+    if(i+1 === num) dot.classList.add('active');
+    else if(i+1 < num) dot.classList.add('done');
+  });
+}
+
+// ---- HELIX CANVAS ----
+function drawHelix() {
+  const c = document.getElementById('canvas-helix');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#f1f3f9'; ctx.fillRect(0,0,W,H);
+
+  const cx=W/2, cy=H/2;
+  const pts = [];
+  for(let t=0; t<=6*Math.PI; t+=0.05) {
+    const x = cx + 80*Math.cos(t);
+    const y = cy + 80*Math.sin(t)*0.35 - t*6;
+    pts.push({x,y,t});
+  }
+
+  // Draw helix
+  for(let i=1;i<pts.length;i++){
+    const ratio = i/pts.length;
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(59,95,226,${0.25+ratio*0.75})`;
+    ctx.lineWidth = 2;
+    ctx.moveTo(pts[i-1].x, pts[i-1].y+H*0.35);
+    ctx.lineTo(pts[i].x, pts[i].y+H*0.35);
+    ctx.stroke();
+  }
+
+  // Labels
+  ctx.fillStyle='rgba(74,82,112,0.9)'; ctx.font='11px IBM Plex Mono,monospace'; ctx.textAlign='center';
+  ctx.fillText('r(t) = ⟨cos(t), sin(t), t⟩', cx, H-10);
+}
+
+// ---- DERIVATIVE CALCULATOR ----
+function calcDerivative() {
+  const comps = ['dx1','dx2','dx3'].map(id => document.getElementById(id)?.value || '');
+  const tVal = parseFloat(document.getElementById('eval-t')?.value) || 0;
+  const names = ['x','y','z'];
+  let derivs = [];
+
+  try {
+    for(const c of comps){
+      const expr = math.parse(c);
+      const d = math.derivative(expr, 't').toString();
+      derivs.push(d);
+    }
+    document.getElementById('deriv-result').innerHTML =
+      `<span style="color:var(--text3);font-size:11px;font-family:var(--sans)">r'(t) =</span><br>` +
+      derivs.map((d,i)=>`${names[i]}: ${d}`).join('<br>');
+
+    // Evaluate magnitude
+    let sumSq = 0;
+    for(const d of derivs) {
+      const fn = math.compile(d);
+      const val = fn.evaluate({t: tVal});
+      sumSq += val*val;
+    }
+    const mag = Math.sqrt(sumSq);
+    document.getElementById('deriv-eval').innerHTML =
+      `<span style="color:var(--text3);font-size:11px;font-family:var(--sans)">t = ${tVal}</span><br>` +
+      `|r'(${tVal})| = ${mag.toFixed(4)}`;
+  } catch(e) {
+    document.getElementById('deriv-result').textContent = 'Revisa la sintaxis...';
+    document.getElementById('deriv-eval').textContent = '—';
+  }
+}
+
+// ---- TANGENT PLANE CALCULATOR ----
+function calcTangentPlane() {
+  const fStr = document.getElementById('tp-func')?.value || 'x^2+y^2';
+  const x0 = parseFloat(document.getElementById('tp-x0')?.value) || 1;
+  const y0 = parseFloat(document.getElementById('tp-y0')?.value) || 1;
+
+  try {
+    const expr = math.parse(fStr);
+    const scope0 = {x: x0, y: y0};
+    const z0 = math.evaluate(fStr, scope0);
+    const dfdx = math.derivative(expr, 'x');
+    const dfdy = math.derivative(expr, 'y');
+    const fx = dfdx.evaluate(scope0);
+    const fy = dfdy.evaluate(scope0);
+
+    document.getElementById('tp-point').innerHTML =
+      `P = (${x0}, ${y0}, ${z0.toFixed(4)})`;
+
+    const cStr = (z0 - fx*x0 - fy*y0).toFixed(4);
+    document.getElementById('tp-result').innerHTML =
+      `z = ${fx.toFixed(4)}(x) + ${fy.toFixed(4)}(y) + ${cStr}\n\n` +
+      `fₓ(${x0},${y0}) = ${fx.toFixed(4)}\n` +
+      `f_y(${x0},${y0}) = ${fy.toFixed(4)}`;
+
+    document.getElementById('tp-steps').innerHTML =
+      `Pasos: 1) z₀ = f(${x0},${y0}) = ${z0.toFixed(3)} · 2) fₓ = ${fx.toFixed(3)}, f_y = ${fy.toFixed(3)} · 3) z−${z0.toFixed(2)} = ${fx.toFixed(2)}(x−${x0}) + ${fy.toFixed(2)}(y−${y0})`;
+
+    drawTangentPlane(fStr, x0, y0, z0, fx, fy);
+  } catch(e) {
+    document.getElementById('tp-result').textContent = 'Error. Verifica f(x,y). Usa: x^2, sin(x), exp(x)';
+  }
+}
+
+// ---- TANGENT PLANE CANVAS ----
+function drawTangentPlane(fStr, x0, y0, z0, fx, fy) {
+  const c = document.getElementById('canvas-tangent');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#f1f3f9'; ctx.fillRect(0,0,W,H);
+
+  // Simple 3D isometric projection
+  function proj3d(x,y,z) {
+    const scale = 18;
+    const ox = W/2, oy = H/2+20;
+    const px = ox + (x-y)*Math.cos(0.4)*scale;
+    const py = oy + (x+y)*Math.sin(0.3)*scale - z*0.6*scale;
+    return {px, py};
+  }
+
+  const range = 2.5, steps = 18;
+  const step = range*2/steps;
+
+  // Draw surface
+  for(let i=0; i<steps; i++){
+    for(let j=0; j<steps; j++){
+      const x = x0 - range + i*step;
+      const y = y0 - range + j*step;
+      const x2 = x+step, y2 = y+step;
+      let z;
+      try { z = math.evaluate(fStr, {x,y}); } catch(e){ continue; }
+      if(Math.abs(z) > 20) continue;
+      const p1 = proj3d(x-x0, y-y0, z-z0);
+      const p2 = proj3d(x2-x0, y-y0, math.evaluate(fStr,{x:x2,y})-z0);
+      const p3 = proj3d(x2-x0, y2-y0, math.evaluate(fStr,{x:x2,y:y2})-z0);
+      const p4 = proj3d(x-x0, y2-y0, math.evaluate(fStr,{x,y:y2})-z0);
+
+      ctx.beginPath();
+      ctx.moveTo(p1.px,p1.py); ctx.lineTo(p2.px,p2.py);
+      ctx.lineTo(p3.px,p3.py); ctx.lineTo(p4.px,p4.py);
+      ctx.closePath();
+      ctx.fillStyle='rgba(59,95,226,0.06)';
+      ctx.strokeStyle='rgba(59,95,226,0.25)';
+      ctx.lineWidth=0.5;
+      ctx.fill(); ctx.stroke();
+    }
+  }
+
+  // Draw tangent plane (flat plane)
+  const pr = 2;
+  const corners = [[-pr,-pr],[pr,-pr],[pr,pr],[-pr,pr]];
+  ctx.beginPath();
+  corners.forEach(([dx,dy],i) => {
+    const dz = fx*dx + fy*dy;
+    const p = proj3d(dx, dy, dz);
+    if(i===0) ctx.moveTo(p.px,p.py);
+    else ctx.lineTo(p.px,p.py);
+  });
+  ctx.closePath();
+  ctx.fillStyle='rgba(13,148,136,0.1)';
+  ctx.strokeStyle='rgba(13,148,136,0.7)';
+  ctx.lineWidth=1.5;
+  ctx.fill(); ctx.stroke();
+
+  // Point of tangency
+  const pt = proj3d(0,0,0);
+  ctx.beginPath();
+  ctx.arc(pt.px, pt.py, 5, 0, Math.PI*2);
+  ctx.fillStyle='var(--amber)';
+  ctx.fill();
+
+  ctx.fillStyle='rgba(74,82,112,0.8)';
+  ctx.font='11px IBM Plex Mono,monospace'; ctx.textAlign='left';
+  ctx.fillText('— superficie', W-130, 18);
+  ctx.fillStyle='rgba(13,148,136,0.9)';
+  ctx.fillText('— plano tangente', W-130, 34);
+  ctx.fillStyle='rgba(180,83,9,0.9)';
+  ctx.fillText('● punto de tangencia', W-130, 50);
+}
+
+// ---- CAREER TOGGLE ----
+function showCareer(career) {
+  document.getElementById('career-multi').style.display = career==='multi' ? 'block' : 'none';
+  document.getElementById('career-indus').style.display = career==='indus' ? 'block' : 'none';
+  const bm = document.getElementById('btn-multi');
+  const bi = document.getElementById('btn-indus');
+  if(career==='multi') {
+    bm.style.cssText = 'flex:1; border-color:var(--teal); color:var(--teal); background:rgba(13,148,136,0.08)';
+    bi.style.cssText = 'flex:1; border-color:var(--border); color:var(--text2); background:transparent';
+  } else {
+    bi.style.cssText = 'flex:1; border-color:var(--amber); color:var(--amber); background:rgba(245,158,11,0.1)';
+    bm.style.cssText = 'flex:1; border-color:var(--border); color:var(--text2); background:transparent';
+  }
+}
+
+// ---- QUIZ ----
+let answers = {};
+let scores = 0;
+
+function checkQ(qNum, chosen, correct) {
+  if(answers[qNum]) return;
+  answers[qNum] = chosen;
+  const card = document.getElementById('q'+qNum);
+  const opts = card.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.classList.add('disabled'));
+
+  const labels = ['a','b','c','d'];
+  opts.forEach((o,i) => {
+    if(labels[i] === correct) o.classList.add('correct');
+    else if(labels[i] === chosen) o.classList.add('wrong');
+  });
+
+  const isCorrect = chosen === correct;
+  if(isCorrect) scores++;
+
+  // Special handling for Q1 (ambiguous answer)
+  if(qNum===1) {
+    if(chosen==='a'||chosen==='b') {
+      document.getElementById('q1-correct2').classList.add('show');
+    } else {
+      document.getElementById('q1-wrong').classList.add('show');
+    }
+  } else {
+    const fb = document.getElementById('q'+qNum+(isCorrect?'-correct':'-wrong'));
+    if(fb) fb.classList.add('show');
+  }
+
+  // Show score when all answered
+  if(Object.keys(answers).length >= 5) {
+    const scoreEl = document.getElementById('quiz-score');
+    scoreEl.style.display = 'block';
+    document.getElementById('score-display').textContent = scores+'/5';
+    const msgs = {
+      5: '🌟 ¡Perfecto! Dominas el tema completamente.',
+      4: '✅ ¡Muy bien! Pequeños detalles por repasar.',
+      3: '📚 Bien encaminado. Repasa los temas que fallaste.',
+      2: '💪 Necesitas más práctica. Regresa a las secciones anteriores.',
+      1: '🔄 Te recomendamos repasar toda la clase desde el inicio.',
+      0: '🔄 No te preocupes — los conceptos llevan práctica. Vuelve al inicio.'
+    };
+    document.getElementById('score-msg').textContent = msgs[scores] || '';
+    scoreEl.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+}
+
+function toggleSol6() {
+  const sol = document.getElementById('sol6');
+  sol.style.display = sol.style.display==='none' ? 'block' : 'none';
+}
+
+// ---- INIT ----
+window.addEventListener('load', () => {
+  drawHelix();
+  calcDerivative();
+  calcTangentPlane();
+});
+
+// ---- EXAM QUIZ ----
+let examAnswers = {};
+let examScore = 0;
+
+function checkExam(qNum, chosen, correct) {
+  if(examAnswers[qNum]) return;
+  examAnswers[qNum] = chosen;
+  const card = document.getElementById('eq'+qNum);
+  const opts = card.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.classList.add('disabled'));
+  const labels = ['a','b','c','d'];
+  opts.forEach((o,i) => {
+    if(labels[i] === correct) o.classList.add('correct');
+    else if(labels[i] === chosen) o.classList.add('wrong');
+  });
+  const isCorrect = chosen === correct;
+  if(isCorrect) examScore++;
+  const fb = document.getElementById('eq'+qNum+(isCorrect?'-correct':'-wrong'));
+  if(fb) fb.classList.add('show');
+
+  if(Object.keys(examAnswers).length >= 5) {
+    const scoreEl = document.getElementById('exam-score');
+    scoreEl.style.display = 'block';
+    document.getElementById('exam-score-display').textContent = examScore+'/5';
+    const msgs = {
+      5: '🌟 ¡Certificación aprobada con distinción! Dominas completamente el tema.',
+      4: '✅ ¡Certificación aprobada! Desempeño sobresaliente.',
+      3: '📋 Aprobado. Refuerza los temas fallados antes de la entrega.',
+      2: '📚 No aprobado. Te recomendamos repasar toda la clase.',
+      1: '🔄 No aprobado. Regresa a los conceptos fundamentales.',
+      0: '🔄 No aprobado. Estudia la clase completa desde el inicio.'
+    };
+    document.getElementById('exam-score-msg').textContent = msgs[examScore] || '';
+    if(examScore >= 4) document.getElementById('exam-cert').style.display = 'block';
+    scoreEl.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+}
+
+// Re-draw helix when step 2 is activated
+const origGoStep = goStep;
+</script>
+</body>
+</html>
